@@ -11,55 +11,65 @@ import java.io.*;
 import java.lang.reflect.Type;
 
 public abstract class Store<T> {
-  private static final String CONFIG_PATH = String.format("%s/config/%s", MinecraftClient.getInstance().runDirectory, XRay.MOD_ID);
+    private static final String CONFIG_PATH = String.format("%s/config/%s", MinecraftClient.getInstance().runDirectory, XRay.MOD_ID);
 
-  private final String name;
-  private final String file;
+    private final String name;
+    private final String file;
 
-  Store(String name) {
-    this.name = name;
-    this.file = String.format("%s/%s.json", CONFIG_PATH, this.name);
+    public boolean justCreated = false;
 
-    this.read();
-  }
+    Store(String name) {
+        this.name = name;
+        this.file = String.format("%s/%s.json", CONFIG_PATH, this.name);
 
-  public T read() {
-    Gson gson = new Gson();
-
-    try {
-      try {
-        T t = gson.fromJson(new FileReader(this.file), this.getType());
-        System.out.println(t);
-        return t;
-      } catch (JsonIOException | JsonSyntaxException e) {
-        XRay.LOGGER.fatal("Fatal error with json loading on {}.json", this.name, e);
-      }
-    } catch (FileNotFoundException ignored) {
-      // Write a blank version of the file
-      if (new File(CONFIG_PATH).mkdirs()) {
-        this.write();
-      }
+        this.read();
     }
 
-    return null;
-  }
-
-  public void write() {
-    Gson gson = new GsonBuilder()
-        .setPrettyPrinting()
-        .create();
-
-    try {
-      try (FileWriter writer = new FileWriter(this.file)) {
-        gson.toJson(this.get(), writer);
-        writer.flush();
-      }
-    } catch (IOException | JsonIOException e) {
-      XRay.LOGGER.catching(e);
+    public Gson getGson() {
+        return new GsonBuilder().setPrettyPrinting().create();
     }
-  }
 
-  public abstract T get();
+    public T read() {
+        Gson gson = this.getGson();
 
-  abstract Type getType();
+        try {
+            try {
+                return gson.fromJson(new FileReader(this.file), this.getType());
+            } catch (JsonIOException | JsonSyntaxException e) {
+                XRay.LOGGER.fatal("Fatal error with json loading on {}.json", this.name, e);
+            }
+        } catch (FileNotFoundException ignored) {
+            this.justCreated = true;
+
+            // Write a blank version of the file
+            if (new File(CONFIG_PATH).mkdirs()) {
+                this.write(true);
+            }
+        }
+
+        return this.providedDefault();
+    }
+
+    public void write() {
+        this.write(false);
+    }
+
+    private void write(Boolean firstWrite) {
+        Gson gson = this.getGson();
+
+        try {
+            try (FileWriter writer = new FileWriter(this.file)) {
+                gson.toJson(firstWrite ? this.providedDefault() : this.get(), writer);
+                writer.flush();
+            }
+        } catch (IOException | JsonIOException e) {
+            XRay.LOGGER.catching(e);
+        }
+    }
+
+    public abstract T providedDefault();
+
+    public abstract T get();
+
+    abstract Type getType();
 }

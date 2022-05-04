@@ -1,43 +1,111 @@
 package pro.mikey.fabric.xray.records;
 
+import com.google.gson.*;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtHelper;
+import pro.mikey.fabric.xray.cache.BlockSearchEntry;
+
+import java.lang.reflect.Type;
+
 public class BlockEntry {
-  private String state;
-  private String name;
-  private String hex;
-  private int order;
-  private boolean isDefault;
-  private boolean active;
+    private BlockState state;
+    private ItemStack stack;
+    private String name;
+    private BasicColor color;
+    private int order;
+    private boolean isDefault;
+    private boolean active;
 
-  public BlockEntry(String state, String name, String hex, int order, boolean isDefault, boolean active) {
-    this.state = state;
-    this.name = name;
-    this.hex = hex;
-    this.order = order;
-    this.isDefault = isDefault;
-    this.active = active;
-  }
+    public BlockEntry(BlockState state, String name, BasicColor color, int order, boolean isDefault, boolean active) {
+        this.state = state;
+        this.stack = new ItemStack(this.state.getBlock());
+        this.name = name;
+        this.color = color;
+        this.order = order;
+        this.isDefault = isDefault;
+        this.active = active;
+    }
 
-  public String getState() {
-    return this.state;
-  }
+    public BlockState getState() {
+        return this.state;
+    }
 
-  public String getName() {
-    return this.name;
-  }
+    public void setState(BlockState state) {
+        this.state = state;
+    }
 
-  public String getHex() {
-    return this.hex;
-  }
+    public String getName() {
+        return this.name;
+    }
 
-  public int getOrder() {
-    return this.order;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public boolean isDefault() {
-    return this.isDefault;
-  }
+    public BasicColor getHex() {
+        return this.color;
+    }
 
-  public boolean isActive() {
-    return this.active;
-  }
+    public int getOrder() {
+        return this.order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public boolean isDefault() {
+        return this.isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        this.isDefault = aDefault;
+    }
+
+    public boolean isActive() {
+        return this.active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public ItemStack getStack() {
+        return this.stack;
+    }
+
+    public void setStack(ItemStack stack) {
+        this.stack = stack;
+    }
+
+    public void setColor(BasicColor color) {
+        this.color = color;
+    }
+
+    public static class Serializer implements JsonSerializer<BlockEntry>, JsonDeserializer<BlockEntry> {
+        @Override
+        public BlockEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject asJsonObject = json.getAsJsonObject();
+            return new BlockEntry(
+                    BlockSearchEntry.blockStateFromStringNBT(asJsonObject.get("state").getAsString()),
+                    asJsonObject.get("name").getAsString(),
+                    BasicColor.of(asJsonObject.get("color").getAsString()),
+                    asJsonObject.get("order").getAsInt(),
+                    asJsonObject.get("isDefault").getAsBoolean(),
+                    asJsonObject.get("active").getAsBoolean());
+        }
+
+        @Override
+        public JsonElement serialize(BlockEntry src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject object = new JsonObject();
+            object.addProperty("state", NbtHelper.fromBlockState(src.getState()).toString());
+            object.addProperty("name", src.name);
+            object.addProperty("color", src.color.toHex());
+            object.addProperty("order", src.order);
+            object.addProperty("isDefault", src.isDefault);
+            object.addProperty("active", src.active);
+            return object;
+        }
+    }
 }
