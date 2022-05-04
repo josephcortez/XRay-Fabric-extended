@@ -4,7 +4,7 @@ import net.minecraft.util.math.MathHelper;
 import pro.mikey.fabric.xray.storage.Stores;
 
 public class StateSettings {
-    private static final int maxStepsToScan = 5;
+    private static final int maxStepsToScan = 30;
 
     private transient boolean isActive;
     private boolean showLava;
@@ -15,7 +15,7 @@ public class StateSettings {
         this.isActive = false;
         this.showLava = false;
         this.showOverlay = true;
-        this.range = 3;
+        this.range = 17;
     }
 
     public boolean isActive() {
@@ -48,7 +48,7 @@ public class StateSettings {
 
     public void increaseRange() {
         if (Stores.SETTINGS.get().range < maxStepsToScan)
-            Stores.SETTINGS.get().range = Stores.SETTINGS.get().range + 1;
+            Stores.SETTINGS.get().range = Stores.SETTINGS.get().range + 3;
         else
             Stores.SETTINGS.get().range = 0;
     }

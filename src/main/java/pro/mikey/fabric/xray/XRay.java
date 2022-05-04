@@ -39,9 +39,11 @@ public class XRay implements ModInitializer {
     public static final String PREFIX_GUI = String.format("%s:textures/gui/", MOD_ID);
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-    private final KeyBinding xrayButton = new KeyBinding("keybinding.enable_xray", GLFW.GLFW_KEY_BACKSLASH, "category.xray");
+    private final KeyBinding xrayButton = new KeyBinding("keybinding.enable_xray", GLFW.GLFW_KEY_X, "category.xray");
 
     private final KeyBinding guiButton = new KeyBinding("keybinding.open_gui", GLFW.GLFW_KEY_G, "category.xray");
+
+    // private final KeyBinding wireButton = new KeyBinding("keybinding.enable_wire", GLFW.GLFW_KEY_V, "category.xray");
 
     @Override
     public void onInitialize() {
@@ -92,7 +94,7 @@ public class XRay implements ModInitializer {
 
             ScanController.runTask(true);
 
-            mc.player.sendMessage(new TranslatableText("message.xray_" + (!stateSettings.isActive() ? "deactivate" : "active")).formatted(stateSettings.isActive() ? Formatting.GREEN : Formatting.RED), true);
+            // mc.player.sendMessage(new TranslatableText("message.xray_" + (!stateSettings.isActive() ? "deactivate" : "active")).formatted(stateSettings.isActive() ? Formatting.GREEN : Formatting.RED), true);
         }
     }
 }

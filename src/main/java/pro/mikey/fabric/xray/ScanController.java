@@ -20,12 +20,12 @@ import java.util.Set;
 
 public class ScanController {
     public static Set<BlockPosWithColor> renderQueue = Collections.synchronizedSet(new HashSet<>());
-    private static ChunkPos playerLastChunk;
+    /*private static ChunkPos playerLastChunk;*/
 
     /**
      * No point even running if the player is still in the same chunk.
      */
-    private static boolean playerLocationChanged() {
+    /*private static boolean playerLocationChanged() {
         if (MinecraftClient.getInstance().player == null)
             return false;
 
@@ -35,7 +35,7 @@ public class ScanController {
         return playerLastChunk == null ||
                 plyChunkPos.x > playerLastChunk.x + range || plyChunkPos.x < playerLastChunk.x - range ||
                 plyChunkPos.z > playerLastChunk.z + range || plyChunkPos.z < playerLastChunk.z - range;
-    }
+    }*/
 
     /**
      * Runs the scan task by checking if the thread is ready but first attempting to provide the cache
@@ -50,12 +50,12 @@ public class ScanController {
             return;
         }
 
-        if (!Stores.SETTINGS.get().isActive() || (!forceRerun && !playerLocationChanged())) {
+        if (!Stores.SETTINGS.get().isActive() /*|| (!forceRerun && !playerLocationChanged())*/) {
             return;
         }
 
         // Update the players last chunk to eval against above.
-        playerLastChunk = client.player.getChunkPos();
+        /*playerLastChunk = client.player.getChunkPos();*/
         Util.getMainWorkerExecutor().execute(new ScanTask());
     }
 
